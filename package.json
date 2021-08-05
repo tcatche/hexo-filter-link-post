@@ -1,0 +1,19 @@
+{
+  "name": "hexo-filter-link-post",
+  "version": "1.0.0",
+  "description": "generate a readme-file.md file contains all of blogs posts link.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tcatche/hexo-filter-link-post.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "tcatche",
+  "bugs": {
+    "url": "https://github.com/tcatche/hexo-filter-link-post/issues"
+  },
+  "homepage": "https://github.com/tcatche/hexo-filter-link-post",
+  "license": "MIT"
+}

@@ -1,6 +1,6 @@
 {
   "name": "hexo-filter-link-post",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "generate a readme-file.md file contains all of blogs posts link.",
   "main": "index.js",
   "repository": {

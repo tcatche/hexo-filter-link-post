@@ -17,11 +17,11 @@ hexo.extend.filter.register('post_permalink', function(permalink) {
 
 hexo.extend.filter.register("after_render:html", (str) => {
   const re = /<a[^>]*href[=\"\'\s]+([^\"\']*)[\"\']?[^>]*>/g;
-  console.log(cachedPost)
   return str.replace(re, function(p1, p2) {
-    const fileName = p2.replace(/..\/|.\//g, '');
+    const fileName = p2.replace(/..\/|.\//g, '').replace(/.md#[\w]+/, '.md');
     if (cachedPost[fileName]) {
-      return p1.replace(p2, `/${cachedPost[fileName]}`);
+      const toBeReplacedContent = p2.replace(/.md#[\w]+/, '.md');
+      return p1.replace(toBeReplacedContent, `/${cachedPost[fileName]}`);
     }
     return p1;
   });

@@ -26,11 +26,21 @@ But, the link is an unreachable link.
 With this plugin, the html will be transfered as
 
 ```html
-<a href="/2021/08/04/bar">Referrence: bar</a>
+<a href="/2021/08/04/bar/">Referrence: bar</a>
 ```
 
 Now the link is reachable.
 
+
+And After `1.0.1`, The link with anchor(`#title`) also support:
+
+```
+// before
+`[Referrence: bar](./bar.md#title)`
+
+// after
+<a href="/2021/08/04/bar/#title">Referrence: bar</a>
+```
 
 ## install
 

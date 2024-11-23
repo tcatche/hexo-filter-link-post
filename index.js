@@ -8,7 +8,7 @@ hexo.extend.filter.register('before_post_render', function(data){
   const filePath = path.normalize(data.source.replace('_posts/', ''));
   cachedPost[filePath] = data.permalink;
   return data;
-}, 50);
+}, 20);
 
 
 // update links in post
@@ -16,7 +16,7 @@ hexo.extend.filter.register('before_post_render', function(data){
   let currentPostPath = data.source.replace('_posts/', '');
   data.content = updateLinksInPost(data.content, currentPostPath);
   return data;
-}, 51);
+}, 21);
 
 function updateLinksInPost(postContent, currentPostPath) {
   // regex matching "[name](link)"

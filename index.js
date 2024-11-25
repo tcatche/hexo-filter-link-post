@@ -1,32 +1,66 @@
-
 'use strict';
 
+const path = require('path');
+
+// cache permalink for each post
 const cachedPost = {};
-let lastPost;
-hexo.extend.filter.register('post_permalink', function(data){
-  lastPost = data;
+hexo.extend.filter.register('before_post_render', function(data){
+  const filePath = path.normalize(data.source.replace('_posts/', ''));
+  cachedPost[filePath] = data.permalink;
   return data;
-}, 1);
-hexo.extend.filter.register('post_permalink', function(permalink) {
-  if (lastPost) {
-    const fileName = lastPost.source.replace('_posts/', '');
-    cachedPost[fileName] = permalink;
-  }
-  return permalink;
-}, 25);
+}, 20);
 
-hexo.extend.filter.register("after_render:html", (str) => {
-  const re = /<a[^>]*href[=\"\'\s]+([^\"\']*)[\"\']?[^>]*>/g;
-  return str.replace(re, function(p1, p2) {
-    const fileName = p2.replace(/..\/|.\//g, '').replace(/.md#[\w]+/, '.md');
-    if (cachedPost[fileName]) {
-      const toBeReplacedContent = p2.replace(/.md#[\w]+/, '.md');
-      return p1.replace(toBeReplacedContent, `/${cachedPost[fileName]}`);
+
+// update links in post
+hexo.extend.filter.register('before_post_render', function(data){
+  let currentPostPath = data.source.replace('_posts/', '');
+  data.content = updateLinksInPost(data.content, currentPostPath);
+  return data;
+}, 21);
+
+function updateLinksInPost(postContent, currentPostPath) {
+  // regex matching "[name](link)"
+  const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const replacements = [];
+
+  let match;
+  while ((match = regex.exec(postContent)) !== null) {
+    const [fullMatch, name, link] = match;
+
+    // Check if link ends with ".md" or contains ".md#", and does not contain "://"
+    // These links should be processed, as they points to another post
+    if ((/\.md(#|$)/.test(link)) && !/:\//.test(link)) {
+      // split the link (like "../github/introduction.md#History")
+      const [relativePath, anchor = ''] = link.split("#");
+
+      // resolve the relative link path against current directory
+      const currentDir = path.dirname(currentPostPath);
+      const targetPostPath = path.normalize(path.join(currentDir, relativePath));
+
+      // Is this "targetPostPath" actually points to an existing post?
+      const targetPermalink = cachedPost[targetPostPath]
+      if(!targetPermalink) {
+        continue;
+      }
+
+      // reconstruct the new link
+      const newLink = `${targetPermalink}${anchor ? "#" + anchor : ""}`;
+      const newMarkdownLink = `[${name}](${newLink})`;
+
+      replacements.push({
+        start: match.index,
+        end: match.index + fullMatch.length,
+        replacement: newMarkdownLink,
+      });
+      hexo.log.i(`Replace link ${fullMatch} --> ${newMarkdownLink} in post [${currentPostPath}]`)
     }
-    return p1;
+  }
+
+  // apply replacements in reverse order to avoid index shifting
+  replacements.reverse().forEach(({ start, end, replacement }) => {
+    postContent =
+      postContent.slice(0, start) + replacement + postContent.slice(end);
   });
-});
 
-
-
-
+  return postContent;
+}
